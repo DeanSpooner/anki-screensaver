@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Papa from "papaparse";
 import "./App.css";
 
-const csvFilePath = "/jlptn4vocab.csv"; // Direct relative path
+const csvFilePath = "jlptn4vocab.csv"; // Direct relative path
 
 function App() {
   const [randomLine, setRandomLine] = useState<string[] | null>(null);
