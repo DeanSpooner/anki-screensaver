@@ -17,9 +17,9 @@ function App() {
     fetch(csvFilePath)
       .then(response => response.text())
       .then(csvText => {
-        Papa.parse(csvText, {
+        Papa.parse<string[]>(csvText, {
           complete: result => {
-            const parsedData = result.data.filter(
+            const parsedData = (result.data as string[][]).filter(
               (line: string[]) => line.length > 0
             ); // Filter empty lines
             setData(parsedData);
@@ -29,7 +29,7 @@ function App() {
               setRandomLine(parsedData[randomIndex]);
             }
           },
-          error: error => {
+          error: (error: unknown) => {
             console.error("Error parsing CSV file:", error);
           },
         });
