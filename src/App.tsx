@@ -2,8 +2,6 @@ import { useEffect, useState } from "react";
 import Papa from "papaparse";
 import "./App.css";
 
-const csvFilePath = "jlptn4vocab.csv"; // Direct relative path
-
 function App() {
   const [randomLine, setRandomLine] = useState<string[] | null>(null);
   const [data, setData] = useState<string[][]>([]); // Store the CSV data
@@ -11,10 +9,11 @@ function App() {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [pause, setPause] = useState<boolean>(false);
   const [currentPartTime, setCurrentPartTime] = useState<number>(0); // Time for current part
+  const [currentDeck, setCurrentDeck] = useState<string>("jlptn4vocab.csv");
 
   useEffect(() => {
     // Fetch the CSV file when the component mounts
-    fetch(csvFilePath)
+    fetch(currentDeck)
       .then(response => response.text())
       .then(csvText => {
         Papa.parse<string[]>(csvText, {
@@ -37,7 +36,7 @@ function App() {
       .catch(error => {
         console.error("Error fetching the CSV file:", error);
       });
-  }, []);
+  }, [currentDeck]);
 
   useEffect(() => {
     if (randomLine !== null) {
@@ -76,29 +75,73 @@ function App() {
     }
   }, [pause, randomLine]);
 
+  const skip = () => {
+    if (data.length > 0) {
+      const randomIndex = Math.floor(Math.random() * data.length);
+      setRandomLine(data[randomIndex]);
+      setCurrentIndex(0); // Reset the index
+      setCurrentPartTime(0); // Reset the current part timer
+    }
+  };
+
   return (
-    <div className="App" onClick={() => setPause(!pause)}>
-      {randomLine ? (
-        <div className="output">
-          <h1>
-            JLPT N4 Vocab - press anywhere on the screen to{" "}
-            {pause ? "unpause" : "pause"}:
-          </h1>
-          <progress
-            id="file"
-            value={((currentIndex * 3000 + currentPartTime) / totalTime) * 100}
-            max="100"
-            style={{ width: "90vw", height: 50 }}
-          ></progress>
-          {randomLine
-            .filter(column => column !== "")
-            .map((column, index) => (
-              <h2 key={index}>{index <= currentIndex ? column : "..."}</h2>
-            ))}
-        </div>
-      ) : (
-        <p>Loading vocabulary...</p>
-      )}
+    <div className="App">
+      <button
+        onClick={() => {
+          skip();
+          setCurrentDeck("jlptn4vocab.csv");
+        }}
+      >
+        Vocab
+      </button>
+      <button
+        onClick={() => {
+          skip();
+          setCurrentDeck("jlptn4kanji.csv");
+        }}
+      >
+        Kanji
+      </button>
+      <button
+        onClick={() => {
+          skip();
+          setCurrentDeck("jlptn4grammar.csv");
+        }}
+      >
+        Grammar
+      </button>
+      <button
+        onClick={() => {
+          skip();
+        }}
+      >
+        Skip
+      </button>
+      <div className="container" onClick={() => setPause(!pause)}>
+        {randomLine ? (
+          <div className="output">
+            <h1>
+              JLPT N4 Vocab - press anywhere on the screen to{" "}
+              {pause ? "unpause" : "pause"}:
+            </h1>
+            <progress
+              id="file"
+              value={
+                ((currentIndex * 3000 + currentPartTime) / totalTime) * 100
+              }
+              max="100"
+              style={{ width: "90vw", height: 50 }}
+            ></progress>
+            {randomLine
+              .filter(column => column !== "")
+              .map((column, index) => (
+                <h2 key={index}>{index <= currentIndex ? column : "..."}</h2>
+              ))}
+          </div>
+        ) : (
+          <p>Loading vocabulary...</p>
+        )}
+      </div>
     </div>
   );
 }
